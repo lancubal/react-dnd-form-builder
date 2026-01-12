@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormStore } from '../store';
 import { X, Plus, Trash, Settings, GitMerge } from 'lucide-react';
-import { VisibilityRule } from '../types';
+import type { VisibilityRule } from '../types';
 
 export const PropertiesPanel: React.FC = () => {
   const { elements, selectedId, updateElement, selectElement, metadata, updateMetadata } = useFormStore();
   const selectedElement = elements.find((el) => el.id === selectedId);
 
+  // Local state for the new rule form
+  const [newRule, setNewRule] = useState<{ fieldId: string; operator: 'equals' | 'notEquals'; value: string }>({
+    fieldId: '',
+    operator: 'equals',
+    value: ''
+  });
+
   // Filter out the current element to avoid self-reference in logic
   const availableTriggerElements = elements.filter(
     (el) => el.id !== selectedId && (el.type === 'select' || el.type === 'checkbox' || el.type === 'text')
   );
+
+  const selectedTriggerElement = elements.find(el => el.id === newRule.fieldId);
 
   if (!selectedElement) {
     return (
@@ -296,8 +305,9 @@ export const PropertiesPanel: React.FC = () => {
               
               <div className="flex flex-col gap-2">
                  <select 
+                   value={newRule.fieldId}
+                   onChange={(e) => setNewRule({ ...newRule, fieldId: e.target.value, value: '' })} // Reset value on field change
                    className="w-full border border-gray-300 rounded p-1.5 text-xs bg-white"
-                   id={`trigger-${selectedElement.id}`}
                  >
                    <option value="">Select Trigger Field...</option>
                    {availableTriggerElements.map(el => (
@@ -306,41 +316,57 @@ export const PropertiesPanel: React.FC = () => {
                  </select>
                  
                  <select 
+                    value={newRule.operator}
+                    onChange={(e) => setNewRule({ ...newRule, operator: e.target.value as 'equals' | 'notEquals' })}
                     className="w-full border border-gray-300 rounded p-1.5 text-xs bg-white"
-                    id={`operator-${selectedElement.id}`}
                  >
                    <option value="equals">Equals</option>
                    <option value="notEquals">Not Equals</option>
                  </select>
 
-                 <input 
-                    type="text"
-                    placeholder="Value to match..."
-                    className="w-full border border-gray-300 rounded p-1.5 text-xs"
-                    id={`value-${selectedElement.id}`}
-                 />
+                 {selectedTriggerElement?.type === 'select' ? (
+                   <select
+                     value={newRule.value}
+                     onChange={(e) => setNewRule({ ...newRule, value: e.target.value })}
+                     className="w-full border border-gray-300 rounded p-1.5 text-xs bg-white"
+                   >
+                     <option value="">Select Value...</option>
+                     {selectedTriggerElement.options?.map((option, idx) => (
+                       <option key={idx} value={option}>{option}</option>
+                     ))}
+                   </select>
+                 ) : selectedTriggerElement?.type === 'checkbox' ? (
+                   <select
+                     value={newRule.value}
+                     onChange={(e) => setNewRule({ ...newRule, value: e.target.value })}
+                     className="w-full border border-gray-300 rounded p-1.5 text-xs bg-white"
+                   >
+                     <option value="">Select Value...</option>
+                     <option value="true">Checked</option>
+                     <option value="false">Unchecked</option>
+                   </select>
+                 ) : (
+                   <input 
+                      type="text"
+                      placeholder="Value to match..."
+                      value={newRule.value}
+                      onChange={(e) => setNewRule({ ...newRule, value: e.target.value })}
+                      className="w-full border border-gray-300 rounded p-1.5 text-xs"
+                   />
+                 )}
 
                  <button
                     onClick={() => {
-                      const triggerSelect = document.getElementById(`trigger-${selectedElement.id}`) as HTMLSelectElement;
-                      const operatorSelect = document.getElementById(`operator-${selectedElement.id}`) as HTMLSelectElement;
-                      const valueInput = document.getElementById(`value-${selectedElement.id}`) as HTMLInputElement;
-
-                      if (triggerSelect.value && valueInput.value) {
-                         const newRule: VisibilityRule = {
-                           fieldId: triggerSelect.value,
-                           operator: operatorSelect.value as 'equals' | 'notEquals',
-                           value: valueInput.value
-                         };
+                      if (newRule.fieldId && newRule.value) {
                          const newRules = [...(selectedElement.visibilityRules || []), newRule];
                          updateElement(selectedElement.id, { visibilityRules: newRules });
                          
                          // Reset inputs
-                         triggerSelect.value = "";
-                         valueInput.value = "";
+                         setNewRule({ fieldId: '', operator: 'equals', value: '' });
                       }
                     }}
-                    className="w-full bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-medium py-1.5 rounded transition-colors"
+                    disabled={!newRule.fieldId || !newRule.value}
+                    className="w-full bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium py-1.5 rounded transition-colors"
                  >
                    Add Rule
                  </button>
