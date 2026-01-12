@@ -14,10 +14,13 @@ export const TextField: React.FC<Props> = ({ element, isPreview }) => {
         {element.required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <input
-        type="text"
+        type={element.subtype || 'text'}
         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder={element.placeholder}
         disabled={!isPreview}
+        required={element.required}
+        minLength={element.minLength}
+        maxLength={element.maxLength}
       />
     </div>
   );

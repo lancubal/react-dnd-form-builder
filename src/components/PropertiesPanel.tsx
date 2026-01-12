@@ -1,15 +1,61 @@
 import React from 'react';
 import { useFormStore } from '../store';
-import { X, Plus, Trash } from 'lucide-react';
+import { X, Plus, Trash, Settings } from 'lucide-react';
 
 export const PropertiesPanel: React.FC = () => {
-  const { elements, selectedId, updateElement, selectElement } = useFormStore();
+  const { elements, selectedId, updateElement, selectElement, metadata, updateMetadata } = useFormStore();
   const selectedElement = elements.find((el) => el.id === selectedId);
 
   if (!selectedElement) {
     return (
-      <div className="w-80 bg-white border-l border-gray-200 p-6 flex flex-col items-center justify-center text-gray-500">
-        <p>Select an element to edit its properties</p>
+      <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+          <h2 className="font-semibold text-gray-800 flex items-center gap-2">
+            <Settings size={18} />
+            Form Settings
+          </h2>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+          {/* Form Title */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Form Title</label>
+            <input
+              type="text"
+              value={metadata.title}
+              onChange={(e) => updateMetadata({ title: e.target.value })}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g. Contact Us"
+            />
+          </div>
+
+          {/* Form Description */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Description</label>
+            <textarea
+              value={metadata.description}
+              onChange={(e) => updateMetadata({ description: e.target.value })}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+              placeholder="Enter a description for your form..."
+            />
+          </div>
+
+          {/* Submit Button Label */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Submit Button Text</label>
+            <input
+              type="text"
+              value={metadata.submitLabel}
+              onChange={(e) => updateMetadata({ submitLabel: e.target.value })}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g. Send Message"
+            />
+          </div>
+        </div>
+        
+        <div className="p-4 border-t border-gray-200 bg-gray-50 text-xs text-gray-500">
+          Select an element on the canvas to edit its specific properties.
+        </div>
       </div>
     );
   }
@@ -48,6 +94,72 @@ export const PropertiesPanel: React.FC = () => {
               onChange={(e) => updateElement(selectedElement.id, { placeholder: e.target.value })}
               className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+        )}
+
+        {/* Input Type (Subtype) - Only for text inputs */}
+        {selectedElement.type === 'text' && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Input Type</label>
+            <select
+              value={selectedElement.subtype || 'text'}
+              onChange={(e) => updateElement(selectedElement.id, { subtype: e.target.value as any })}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="text">Text</option>
+              <option value="email">Email</option>
+              <option value="tel">Phone</option>
+              <option value="url">URL</option>
+              <option value="password">Password</option>
+            </select>
+          </div>
+        )}
+
+        {/* Min/Max Length - For Text/Textarea */}
+        {(selectedElement.type === 'text' || selectedElement.type === 'textarea') && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Min Length</label>
+              <input
+                type="number"
+                value={selectedElement.minLength || ''}
+                onChange={(e) => updateElement(selectedElement.id, { minLength: parseInt(e.target.value) || undefined })}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Max Length</label>
+              <input
+                type="number"
+                value={selectedElement.maxLength || ''}
+                onChange={(e) => updateElement(selectedElement.id, { maxLength: parseInt(e.target.value) || undefined })}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Min/Max Value - For Number */}
+        {selectedElement.type === 'number' && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Min Value</label>
+              <input
+                type="number"
+                value={selectedElement.min || ''}
+                onChange={(e) => updateElement(selectedElement.id, { min: parseInt(e.target.value) || undefined })}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">Max Value</label>
+              <input
+                type="number"
+                value={selectedElement.max || ''}
+                onChange={(e) => updateElement(selectedElement.id, { max: parseInt(e.target.value) || undefined })}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
         )}
 

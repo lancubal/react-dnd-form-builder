@@ -5,15 +5,20 @@ import { PropertiesPanel } from './components/PropertiesPanel';
 import { PreviewModal } from './components/PreviewModal';
 import { useFormStore } from './store';
 import { Eye, Save, Upload } from 'lucide-react';
+import type { FormElement, FormMetadata } from './types';
 
 function App() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const { elements, setElements } = useFormStore();
+  const { elements, metadata, setElements, updateMetadata } = useFormStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
-    console.log(JSON.stringify(elements, null, 2));
-    alert('Form JSON logged to console!');
+    const formState = {
+      metadata,
+      elements
+    };
+    console.log(JSON.stringify(formState, null, 2));
+    alert('Form configuration (Metadata + Elements) logged to console!');
   };
 
   const handleLoadClick = () => {
@@ -28,10 +33,19 @@ function App() {
     reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target?.result as string);
+        
+        // Handle both legacy (array only) and new (object with metadata) formats
         if (Array.isArray(json)) {
-          setElements(json);
+          setElements(json as FormElement[]);
+          alert('Loaded legacy form (elements only).');
+        } else if (json.elements && Array.isArray(json.elements)) {
+          setElements(json.elements as FormElement[]);
+          if (json.metadata) {
+            updateMetadata(json.metadata as Partial<FormMetadata>);
+          }
+          alert('Loaded form successfully.');
         } else {
-          alert('Invalid JSON format: Expected an array of elements.');
+          alert('Invalid JSON format.');
         }
       } catch (error) {
         console.error('Error parsing JSON:', error);

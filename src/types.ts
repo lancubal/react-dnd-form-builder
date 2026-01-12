@@ -7,10 +7,23 @@ export interface FormElement {
   required?: boolean;
   placeholder?: string;
   options?: string[]; // For select inputs
+  // Validation & Configuration
+  subtype?: 'text' | 'email' | 'tel' | 'url' | 'password'; // For text inputs
+  minLength?: number; // For text/textarea
+  maxLength?: number; // For text/textarea
+  min?: number; // For number inputs
+  max?: number; // For number inputs
+}
+
+export interface FormMetadata {
+  title: string;
+  description: string;
+  submitLabel: string;
 }
 
 export interface FormState {
   elements: FormElement[];
+  metadata: FormMetadata;
   selectedId: string | null;
   addElement: (type: FormElementType) => void;
   removeElement: (id: string) => void;
@@ -18,4 +31,5 @@ export interface FormState {
   selectElement: (id: string | null) => void;
   moveElement: (oldIndex: number, newIndex: number) => void;
   setElements: (elements: FormElement[]) => void;
+  updateMetadata: (updates: Partial<FormMetadata>) => void;
 }

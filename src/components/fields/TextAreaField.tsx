@@ -17,6 +17,9 @@ export const TextAreaField: React.FC<Props> = ({ element, isPreview }) => {
         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24"
         placeholder={element.placeholder}
         disabled={!isPreview}
+        required={element.required}
+        minLength={element.minLength}
+        maxLength={element.maxLength}
       />
     </div>
   );

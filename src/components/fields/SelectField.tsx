@@ -16,8 +16,10 @@ export const SelectField: React.FC<Props> = ({ element, isPreview }) => {
       <select
         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
         disabled={!isPreview}
+        required={element.required}
+        defaultValue=""
       >
-        <option value="" disabled selected>Select an option</option>
+        <option value="" disabled>Select an option</option>
         {element.options?.map((option, index) => (
           <option key={index} value={option}>{option}</option>
         ))}

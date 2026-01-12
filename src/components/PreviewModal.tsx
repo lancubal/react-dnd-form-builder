@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const PreviewModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const elements = useFormStore((state) => state.elements);
+  const { elements, metadata } = useFormStore();
 
   if (!isOpen) return null;
 
@@ -28,6 +28,13 @@ export const PreviewModal: React.FC<Props> = ({ isOpen, onClose }) => {
         
         <div className="flex-1 overflow-y-auto p-8">
           <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{metadata.title || 'Untitled Form'}</h1>
+              {metadata.description && (
+                <p className="text-gray-600 whitespace-pre-wrap">{metadata.description}</p>
+              )}
+            </div>
+
             {elements.length === 0 ? (
               <p className="text-center text-gray-400 py-8">The form is empty.</p>
             ) : (
@@ -44,7 +51,7 @@ export const PreviewModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   type="submit"
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                 >
-                  Submit
+                  {metadata.submitLabel || 'Submit'}
                 </button>
               </div>
             )}
