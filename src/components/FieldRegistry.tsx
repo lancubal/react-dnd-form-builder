@@ -6,7 +6,7 @@ import { NumberField } from './fields/NumberField';
 import { SelectField } from './fields/SelectField';
 import { CheckboxField } from './fields/CheckboxField';
 
-const fieldComponents: Record<FormElementType, React.FC<{ element: FormElement }>> = {
+const fieldComponents: Record<FormElementType, React.FC<{ element: FormElement; isPreview?: boolean }>> = {
   text: TextField,
   textarea: TextAreaField,
   number: NumberField,
@@ -14,8 +14,8 @@ const fieldComponents: Record<FormElementType, React.FC<{ element: FormElement }
   checkbox: CheckboxField,
 };
 
-export const renderField = (element: FormElement) => {
+export const renderField = (element: FormElement, isPreview: boolean = false) => {
   const Component = fieldComponents[element.type];
   if (!Component) return null;
-  return <Component element={element} />;
+  return <Component element={element} isPreview={isPreview} />;
 };

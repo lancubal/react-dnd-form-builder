@@ -3,9 +3,10 @@ import type { FormElement } from '../../types';
 
 interface Props {
   element: FormElement;
+  isPreview?: boolean;
 }
 
-export const TextField: React.FC<Props> = ({ element }) => {
+export const TextField: React.FC<Props> = ({ element, isPreview }) => {
   return (
     <div className="flex flex-col gap-1 w-full">
       <label className="text-sm font-medium text-gray-700">
@@ -16,7 +17,7 @@ export const TextField: React.FC<Props> = ({ element }) => {
         type="text"
         className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder={element.placeholder}
-        disabled
+        disabled={!isPreview}
       />
     </div>
   );
