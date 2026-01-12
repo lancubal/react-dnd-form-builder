@@ -4,7 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { FormElement } from '../types';
 import { renderField } from './FieldRegistry';
 import { useFormStore } from '../store';
-import { Trash2, GripVertical } from 'lucide-react';
+import { Trash2, GripVertical, GitMerge } from 'lucide-react';
 import cn from 'classnames';
 
 interface Props {
@@ -29,6 +29,7 @@ export const FormElementWrapper: React.FC<Props> = ({ element }) => {
   };
 
   const isSelected = selectedId === element.id;
+  const hasConditions = element.visibilityRules && element.visibilityRules.length > 0;
 
   return (
     <div
@@ -58,7 +59,16 @@ export const FormElementWrapper: React.FC<Props> = ({ element }) => {
         {renderField(element)}
       </div>
 
-      {/* Actions */}
+      {/* Indicators & Actions */}
+      <div className="absolute right-3 top-3 flex gap-2">
+         {hasConditions && (
+           <div className="p-1.5 bg-purple-100 text-purple-600 rounded-md" title="Has conditional logic">
+             <GitMerge size={16} />
+           </div>
+         )}
+      </div>
+
+      {/* Delete Action */}
       {isSelected && (
         <button
           onClick={(e) => {

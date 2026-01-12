@@ -1,10 +1,16 @@
 import React from 'react';
 import { useFormStore } from '../store';
-import { X, Plus, Trash, Settings } from 'lucide-react';
+import { X, Plus, Trash, Settings, GitMerge } from 'lucide-react';
+import { VisibilityRule } from '../types';
 
 export const PropertiesPanel: React.FC = () => {
   const { elements, selectedId, updateElement, selectElement, metadata, updateMetadata } = useFormStore();
   const selectedElement = elements.find((el) => el.id === selectedId);
+
+  // Filter out the current element to avoid self-reference in logic
+  const availableTriggerElements = elements.filter(
+    (el) => el.id !== selectedId && (el.type === 'select' || el.type === 'checkbox' || el.type === 'text')
+  );
 
   if (!selectedElement) {
     return (
@@ -250,6 +256,98 @@ export const PropertiesPanel: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Conditional Logic */}
+        <div className="border-t border-gray-200 pt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <GitMerge size={18} className="text-purple-600" />
+            <h3 className="font-semibold text-gray-800">Logic Rules</h3>
+          </div>
+          
+          <div className="flex flex-col gap-3">
+            {selectedElement.visibilityRules?.map((rule, index) => {
+               const triggerElement = elements.find(el => el.id === rule.fieldId);
+               return (
+                <div key={index} className="bg-purple-50 p-3 rounded-lg border border-purple-100 flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-purple-700 uppercase">Show if...</span>
+                    <button 
+                       onClick={() => {
+                         const newRules = selectedElement.visibilityRules?.filter((_, i) => i !== index);
+                         updateElement(selectedElement.id, { visibilityRules: newRules });
+                       }}
+                       className="text-purple-400 hover:text-purple-700"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  
+                  <div className="text-sm text-gray-700">
+                    <span className="font-medium">"{triggerElement?.label || 'Unknown Field'}"</span>
+                    <span className="mx-1 text-gray-400">{rule.operator === 'equals' ? 'is' : 'is not'}</span>
+                    <span className="font-medium">"{rule.value}"</span>
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="mt-2 p-3 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+              <p className="text-xs text-gray-500 mb-2 font-medium">Add New Condition</p>
+              
+              <div className="flex flex-col gap-2">
+                 <select 
+                   className="w-full border border-gray-300 rounded p-1.5 text-xs bg-white"
+                   id={`trigger-${selectedElement.id}`}
+                 >
+                   <option value="">Select Trigger Field...</option>
+                   {availableTriggerElements.map(el => (
+                     <option key={el.id} value={el.id}>{el.label}</option>
+                   ))}
+                 </select>
+                 
+                 <select 
+                    className="w-full border border-gray-300 rounded p-1.5 text-xs bg-white"
+                    id={`operator-${selectedElement.id}`}
+                 >
+                   <option value="equals">Equals</option>
+                   <option value="notEquals">Not Equals</option>
+                 </select>
+
+                 <input 
+                    type="text"
+                    placeholder="Value to match..."
+                    className="w-full border border-gray-300 rounded p-1.5 text-xs"
+                    id={`value-${selectedElement.id}`}
+                 />
+
+                 <button
+                    onClick={() => {
+                      const triggerSelect = document.getElementById(`trigger-${selectedElement.id}`) as HTMLSelectElement;
+                      const operatorSelect = document.getElementById(`operator-${selectedElement.id}`) as HTMLSelectElement;
+                      const valueInput = document.getElementById(`value-${selectedElement.id}`) as HTMLInputElement;
+
+                      if (triggerSelect.value && valueInput.value) {
+                         const newRule: VisibilityRule = {
+                           fieldId: triggerSelect.value,
+                           operator: operatorSelect.value as 'equals' | 'notEquals',
+                           value: valueInput.value
+                         };
+                         const newRules = [...(selectedElement.visibilityRules || []), newRule];
+                         updateElement(selectedElement.id, { visibilityRules: newRules });
+                         
+                         // Reset inputs
+                         triggerSelect.value = "";
+                         valueInput.value = "";
+                      }
+                    }}
+                    className="w-full bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 text-xs font-medium py-1.5 rounded transition-colors"
+                 >
+                   Add Rule
+                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <div className="p-4 border-t border-gray-200 bg-gray-50 text-xs text-gray-500 font-mono break-all">

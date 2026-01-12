@@ -1,5 +1,11 @@
 export type FormElementType = 'text' | 'textarea' | 'number' | 'select' | 'checkbox' | 'header' | 'paragraph' | 'separator';
 
+export interface VisibilityRule {
+  fieldId: string;
+  operator: 'equals' | 'notEquals';
+  value: string;
+}
+
 export interface FormElement {
   id: string;
   type: FormElementType;
@@ -13,6 +19,8 @@ export interface FormElement {
   maxLength?: number; // For text/textarea
   min?: number; // For number inputs
   max?: number; // For number inputs
+  // Conditional Logic
+  visibilityRules?: VisibilityRule[];
 }
 
 export interface FormMetadata {
