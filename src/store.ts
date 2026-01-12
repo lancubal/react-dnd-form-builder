@@ -14,14 +14,24 @@ export const useFormStore = create<FormState>((set) => ({
 
   addElement: (type: FormElementType) =>
     set((state) => {
-      const newElement = {
+      const getLabel = () => {
+        switch (type) {
+          case 'header': return 'New Header';
+          case 'paragraph': return 'New paragraph text goes here...';
+          case 'separator': return '';
+          case 'checkbox': return 'New Checkbox';
+          default: return `New ${type} input`;
+        }
+      };
+
+      const newElement: FormElement = {
         id: nanoid(),
         type,
-        label: type === 'checkbox' ? 'New Checkbox' : `New ${type} input`,
+        label: getLabel(),
         placeholder: type === 'text' || type === 'textarea' ? 'Placeholder...' : undefined,
         required: false,
         options: type === 'select' ? ['Option 1', 'Option 2'] : undefined,
-        subtype: type === 'text' ? 'text' : undefined,
+        subtype: type === 'text' ? 'text' : (type === 'header' ? 'h2' : undefined),
       };
       return { 
         elements: [...state.elements, newElement],

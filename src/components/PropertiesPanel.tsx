@@ -73,16 +73,44 @@ export const PropertiesPanel: React.FC = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
-        {/* Label */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">Label</label>
-          <input
-            type="text"
-            value={selectedElement.label}
-            onChange={(e) => updateElement(selectedElement.id, { label: e.target.value })}
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        {/* Content/Label - For Inputs, Headers, and Paragraphs. Hidden for Separator */}
+        {selectedElement.type !== 'separator' && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">
+              {selectedElement.type === 'header' || selectedElement.type === 'paragraph' ? 'Text Content' : 'Label'}
+            </label>
+            {selectedElement.type === 'paragraph' ? (
+              <textarea
+                value={selectedElement.label}
+                onChange={(e) => updateElement(selectedElement.id, { label: e.target.value })}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+              />
+            ) : (
+              <input
+                type="text"
+                value={selectedElement.label}
+                onChange={(e) => updateElement(selectedElement.id, { label: e.target.value })}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            )}
+          </div>
+        )}
+
+        {/* Header Level - Only for Headers */}
+        {selectedElement.type === 'header' && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-700">Heading Level</label>
+            <select
+              value={selectedElement.subtype || 'h2'}
+              onChange={(e) => updateElement(selectedElement.id, { subtype: e.target.value as any })}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="h1">Heading 1 (H1)</option>
+              <option value="h2">Heading 2 (H2)</option>
+              <option value="h3">Heading 3 (H3)</option>
+            </select>
+          </div>
+        )}
 
         {/* Placeholder - Only for text inputs */}
         {(selectedElement.type === 'text' || selectedElement.type === 'textarea' || selectedElement.type === 'number') && (
@@ -163,19 +191,21 @@ export const PropertiesPanel: React.FC = () => {
           </div>
         )}
 
-        {/* Required Toggle */}
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="required"
-            checked={selectedElement.required || false}
-            onChange={(e) => updateElement(selectedElement.id, { required: e.target.checked })}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-          />
-          <label htmlFor="required" className="text-sm font-medium text-gray-700 cursor-pointer">
-            Required Field
-          </label>
-        </div>
+        {/* Required Toggle - Not for static elements */}
+        {(selectedElement.type !== 'header' && selectedElement.type !== 'paragraph' && selectedElement.type !== 'separator') && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="required"
+              checked={selectedElement.required || false}
+              onChange={(e) => updateElement(selectedElement.id, { required: e.target.checked })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="required" className="text-sm font-medium text-gray-700 cursor-pointer">
+              Required Field
+            </label>
+          </div>
+        )}
 
         {/* Options - Only for Select inputs */}
         {selectedElement.type === 'select' && (

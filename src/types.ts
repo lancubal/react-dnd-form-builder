@@ -1,4 +1,4 @@
-export type FormElementType = 'text' | 'textarea' | 'number' | 'select' | 'checkbox';
+export type FormElementType = 'text' | 'textarea' | 'number' | 'select' | 'checkbox' | 'header' | 'paragraph' | 'separator';
 
 export interface FormElement {
   id: string;
@@ -8,7 +8,7 @@ export interface FormElement {
   placeholder?: string;
   options?: string[]; // For select inputs
   // Validation & Configuration
-  subtype?: 'text' | 'email' | 'tel' | 'url' | 'password'; // For text inputs
+  subtype?: 'text' | 'email' | 'tel' | 'url' | 'password' | 'h1' | 'h2' | 'h3'; // Combined subtypes
   minLength?: number; // For text/textarea
   maxLength?: number; // For text/textarea
   min?: number; // For number inputs
